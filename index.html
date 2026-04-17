@@ -2,43 +2,150 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Najda Admin - Iframe Version</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Najda APK Admin</title>
     <style>
-        :root { --neon: #00f2fe; --bg: #0a0a12; }
-        body { font-family: sans-serif; background: var(--bg); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 10px; box-sizing: border-box; }
-        .container { background: rgba(255,255,255,0.05); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; text-align: center; }
-        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #333; background: #000; color: var(--neon); font-size: 1.5rem; text-align: center; margin: 20px 0; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; border-radius: 12px; border: none; background: linear-gradient(45deg, #4facfe, #00f2fe); color: black; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
-        /* المربع اللي هيظهر فيه الرد */
-        #resultFrame { width: 100%; height: 250px; border: 2px dashed var(--neon); border-radius: 15px; margin-top: 20px; display: none; background: white; }
-        .reset-btn { margin-top: 10px; color: #ff4b2b; cursor: pointer; font-size: 0.9rem; display: none; }
+        :root {
+            --neon-blue: #00f2fe;
+            --dark-bg: #050508;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            background-color: var(--dark-bg);
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden; /* عشان ميبقاش فيه سكرول بره الحاويات */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* رأس التطبيق */
+        .app-header {
+            background: rgba(20, 20, 30, 0.9);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 242, 254, 0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        h2 {
+            margin: 0;
+            color: white;
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        /* منطقة الإدخال */
+        .input-area {
+            padding: 20px;
+            background: #0a0a15;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid #222;
+            background: #000;
+            color: var(--neon-blue);
+            font-size: 1.4rem;
+            text-align: center;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input:focus { border-color: var(--neon-blue); }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: #000;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        /* منطقة عرض النتيجة (المربع السحري) */
+        .result-container {
+            flex-grow: 1; /* ياخد باقي مساحة الشاشة */
+            position: relative;
+            background: #fff;
+            margin: 10px;
+            border-radius: 15px;
+            overflow: hidden;
+            display: none; /* مخفي لحد ما نكتب الكود */
+            border: 3px solid var(--neon-blue);
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--neon-blue);
+            display: none;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>لوحة تحكم نجدة ⚡</h2>
-        <input type="text" id="promoInput" placeholder="NAG-5036">
-        <button onclick="checkCode()">تفعيل الكود</button>
-        
-        <iframe id="resultFrame" name="resFrame"></iframe>
-        <div id="resetBtn" class="reset-btn" onclick="location.reload()">تنظيف الشاشة لأوردر جديد</div>
+    <div class="app-header">
+        <h2>NAJDA - نظام التفعيل ⚡</h2>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="promoInput" placeholder="NAG-XXXX" autocomplete="off">
+        <button onclick="activatePromo()">تأكيد و عرض النتيجة</button>
+    </div>
+
+    <div id="resBox" class="result-container">
+        <div id="loader" class="loader">جاري تحميل النتيجة...</div>
+        <iframe id="targetFrame" name="targetFrame"></iframe>
     </div>
 
     <script>
-        function checkCode() {
+        function activatePromo() {
             const code = document.getElementById('promoInput').value.trim().toUpperCase();
-            if(!code) return alert("اكتب الكود!");
+            if (!code) {
+                alert("اكتب الكود أولاً!");
+                return;
+            }
 
-            const frame = document.getElementById('resultFrame');
-            const reset = document.getElementById('resetBtn');
+            const resBox = document.getElementById('resBox');
+            const frame = document.getElementById('targetFrame');
+            const loader = document.getElementById('loader');
+
+            // إظهار منطقة النتيجة والتحميل
+            resBox.style.display = "block";
+            loader.style.display = "block";
             
-            // بنخلي الـ Iframe يفتح رابط الكود
+            // توجيه الرابط للـ iframe
             frame.src = `https://najda-order-hegazy.lovable.app/promocode/${code}`;
-            frame.style.display = "block";
-            reset.style.display = "block";
+
+            frame.onload = function() {
+                loader.style.display = "none";
+            };
         }
+
+        // تحويل الحروف لكابيتال تلقائياً
+        document.getElementById('promoInput').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+        });
     </script>
 </body>
 </html>
