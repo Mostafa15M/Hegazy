@@ -2,153 +2,43 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Najda Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Najda Admin - Iframe Version</title>
     <style>
-        :root {
-            --bg-color: #08080c;
-            --container-bg: rgba(25, 25, 40, 0.7);
-            --primary-neon: #00f2fe;
-            --success-color: #00ff88;
-            --error-color: #ff4b2b;
-            --text-color: #ffffff;
-        }
-
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(circle at center, #1a1a2e 0%, #08080c 100%);
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-
-        .container {
-            background: var(--container-bg);
-            backdrop-filter: blur(15px);
-            padding: 40px 25px;
-            border-radius: 24px;
-            border: 1px solid rgba(255,255,255,0.1);
-            text-align: center;
-            width: 85%;
-            max-width: 360px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-        }
-
-        h2 { margin-bottom: 10px; font-size: 1.6rem; letter-spacing: 1px; }
-        .status-dot { width: 10px; height: 10px; background: var(--primary-neon); border-radius: 50%; display: inline-block; margin-left: 8px; box-shadow: 0 0 10px var(--primary-neon); }
-
-        input {
-            width: 100%;
-            padding: 18px;
-            margin: 25px 0;
-            border: 2px solid rgba(255,255,255,0.1);
-            border-radius: 15px;
-            background: rgba(0,0,0,0.3);
-            color: var(--primary-neon);
-            font-size: 1.4rem;
-            font-weight: bold;
-            text-align: center;
-            box-sizing: border-box;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus { border-color: var(--primary-neon); box-shadow: 0 0 15px rgba(0, 242, 254, 0.2); }
-
-        button {
-            width: 100%;
-            padding: 18px;
-            border: none;
-            border-radius: 15px;
-            background: linear-gradient(45deg, #4facfe, #00f2fe);
-            color: #000;
-            font-weight: bold;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:active { transform: scale(0.98); }
-
-        #responseMessage {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 12px;
-            display: none;
-            font-weight: bold;
-            animation: slideUp 0.3s ease-out;
-        }
-
-        .success { background: rgba(0, 255, 136, 0.2); color: var(--success-color); border: 1px solid var(--success-color); }
-        .error { background: rgba(255, 75, 43, 0.2); color: var(--error-color); border: 1px solid var(--error-color); }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        :root { --neon: #00f2fe; --bg: #0a0a12; }
+        body { font-family: sans-serif; background: var(--bg); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 10px; box-sizing: border-box; }
+        .container { background: rgba(255,255,255,0.05); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #333; background: #000; color: var(--neon); font-size: 1.5rem; text-align: center; margin: 20px 0; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; border-radius: 12px; border: none; background: linear-gradient(45deg, #4facfe, #00f2fe); color: black; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
+        /* المربع اللي هيظهر فيه الرد */
+        #resultFrame { width: 100%; height: 250px; border: 2px dashed var(--neon); border-radius: 15px; margin-top: 20px; display: none; background: white; }
+        .reset-btn { margin-top: 10px; color: #ff4b2b; cursor: pointer; font-size: 0.9rem; display: none; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2><span class="status-dot"></span>لوحة التحكم</h2>
-        <input type="text" id="promoInput" placeholder="NAG-XXXX" autocomplete="off">
-        <button id="submitBtn" onclick="processOrder()">تفعيل الكود</button>
-        <div id="responseMessage"></div>
+        <h2>لوحة تحكم نجدة ⚡</h2>
+        <input type="text" id="promoInput" placeholder="NAG-5036">
+        <button onclick="checkCode()">تفعيل الكود</button>
+        
+        <iframe id="resultFrame" name="resFrame"></iframe>
+        <div id="resetBtn" class="reset-btn" onclick="location.reload()">تنظيف الشاشة لأوردر جديد</div>
     </div>
 
     <script>
-        async function processOrder() {
-            const input = document.getElementById('promoInput');
-            const btn = document.getElementById('submitBtn');
-            const msg = document.getElementById('responseMessage');
-            const code = input.value.trim().toUpperCase();
+        function checkCode() {
+            const code = document.getElementById('promoInput').value.trim().toUpperCase();
+            if(!code) return alert("اكتب الكود!");
 
-            if (!code) {
-                showMsg("دخل الكود يا بطل 🙄", "error");
-                return;
-            }
-
-            // تجهيز الزرار
-            btn.disabled = true;
-            btn.innerHTML = "جاري التحقق...";
-            msg.style.display = "none";
-
-            try {
-                // بنبعت الكود للموقع في الخلفية
-                const response = await fetch(`https://najda-order-hegazy.lovable.app/promocode/${code}`);
-                
-                // لو السيرفر رد تمام
-                if (response.ok) {
-                    showMsg(`✅ تم تفعيل الكود ${code} بنجاح!`, "success");
-                    input.value = ""; // نصفر الخانة للأوردر اللي بعده
-                } else {
-                    showMsg("❌ الكود ده مش شغال أو استُخدم قبل كدة", "error");
-                }
-            } catch (err) {
-                // لو النت فيه مشكلة أو الموقع واقع
-                showMsg("✅ تم الإرسال (تأكد من تحديث الموقع)", "success");
-                input.value = "";
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = "تفعيل الكود";
-            }
+            const frame = document.getElementById('resultFrame');
+            const reset = document.getElementById('resetBtn');
+            
+            // بنخلي الـ Iframe يفتح رابط الكود
+            frame.src = `https://najda-order-hegazy.lovable.app/promocode/${code}`;
+            frame.style.display = "block";
+            reset.style.display = "block";
         }
-
-        function showMsg(text, type) {
-            const msg = document.getElementById('responseMessage');
-            msg.innerHTML = text;
-            msg.className = ""; 
-            msg.classList.add(type === "success" ? "success" : "error");
-            msg.style.display = "block";
-        }
-
-        // تحويل الحروف لكابيتال تلقائياً
-        document.getElementById('promoInput').addEventListener('input', (e) => {
-            e.target.value = e.target.value.toUpperCase();
-        });
     </script>
 </body>
 </html>
