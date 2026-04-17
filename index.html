@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق نجدة - كود البرومو</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 85%;
+            max-width: 400px;
+        }
+        h2 { color: #ffcc00; margin-bottom: 25px; }
+        input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 10px;
+            background: #333;
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #ffcc00, #ff9900);
+            color: black;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:active { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>تطبيق نجدة للأدمن 🛠️</h2>
+        <input type="text" id="promoInput" placeholder="أدخل الكود (مثلاً NAG-5036)">
+        <button onclick="startVerification()">ابدأ التفعيل</button>
+    </div>
+
+    <script>
+        function startVerification() {
+            const code = document.getElementById('promoInput').value.trim();
+            if (code === "") {
+                alert("يا مصطفى اكتب الكود الأول! 😂");
+                return;
+            }
+            // ده الرابط اللي هيفتح صفحة التأكيد في موقعك
+            const url = `https://najda-order-hegazy.lovable.app/promocode/${code}`;
+            window.location.href = url;
+        }
+    </script>
+
+</body>
+</html>
+
